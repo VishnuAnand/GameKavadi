@@ -9,10 +9,22 @@ import com.sun.xml.internal.ws.api.message.Message;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Random;
+import javax.activation.FileDataSource;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  *
@@ -61,8 +73,6 @@ public class jj extends javax.swing.JFrame {
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(null);
@@ -218,14 +228,6 @@ public class jj extends javax.swing.JFrame {
         getContentPane().add(jLabel14);
         jLabel14.setBounds(820, 440, 90, 14);
 
-        jLabel15.setText("jLabel15");
-        getContentPane().add(jLabel15);
-        jLabel15.setBounds(820, 20, 90, 14);
-
-        jLabel16.setText("jLabel16");
-        getContentPane().add(jLabel16);
-        jLabel16.setBounds(820, 40, 90, 14);
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -315,8 +317,26 @@ public class jj extends javax.swing.JFrame {
             }
         }
         jLabel14.setText(String.valueOf(s));
-        level();
+
+        if ((5 - 8 == 0 || 5 + 8 == 0) && true && (templeCheck(5))) {
+            JOptionPane.showMessageDialog(null, "Done");
+        }
+
+        file = new File("log.txt");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (Exception exception) {
+
+            }
+        }
+//      s = 4;
+        log("");
+        log("");
+        log("jButton Clicked");
+        log("s=" + s);
         switchplayer();
+        level();
 
 //        if (playerchance > 0) {
 //            player = player;
@@ -373,37 +393,104 @@ else if(s==4)
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    public void log(String log) {
+        try {
+            byte[] b = Files.readAllBytes(Paths.get("log.txt"));
+            byte[] enter = Files.readAllBytes(Paths.get("enter.txt"));
+            String str = new String(b, "UTF-8");
+            String ent = new String(enter, "UTF-8");
+            String newContent = str + log + ent;
+            Files.write(Paths.get("log.txt"), newContent.getBytes());
+        } catch (Exception exception) {
+            msg(exception.toString());
+        }
+    }
+
     public void level() {
+        int outcount;
+        if (player == 1 || player == 0) {
+            outcount = boutcount;
+            log("boutcount" + boutcount);
+        } else {
+            outcount = routcount;
+            log("routcount" + routcount);
+        }
+
         switch (s) {
             case 1:
-                if (boutcount > 0) {
+                if (outcount > 0) {
                     insert = 1;
-                } else if(boutcount==0){
+                    playerchance = 1;
+                } else if (outcount == 0) {
                     move = 1;
+                    playerchance = 1;
                 }
                 break;
             case 2:
                 insert = 0;
-                if (boutcount < 4) {
+                if (outcount < 4) {
                     move = 1;
+                    playerchance = 1;
                 }
                 break;
-                default:
-                    break;
+            case 3:
+                if (outcount < 4) {
+                    move = 1;
+                    playerchance = 1;
+                }
+                break;
+            case 4:
+                if (outcount > 0) {
+                    insert = 1;
+                    playerchance = 2;
+                } else if (outcount == 0) {
+                    move = 1;
+
+                    playerchance = 2;
+                }
+                break;
+            case 8:
+                if (outcount == 0) {
+                    move = 1;
+                    playerchance = 2;
+                    insert = 0;
+
+                } else if (outcount == 1) {
+                    insert = 1;
+                    move = 1;
+                    playerchance = 3;
+                    s = 4;
+                } else if (outcount > 1) {
+                    insert = 2;
+                    move = 0;
+                    playerchance = 3;
+                }
+                break;
+            default:
+                break;
+
         }
+        log("insert=" + insert);
+        log("move=" + move);
+        log("playerchance=" + playerchance);
     }
 
     public void switchplayer() {
-        msg("Switch Player Called");
+        log("Switch Player Called");
+        // msg("Switch Player Called");
         if (playerchance == 0) {
-            msg("Player CHance = 0");
-            if (player == 1 || player == 0) {
+            log("Player chance = 0 ");
+            //msg("Player CHance = 0");
+            if (player == 0) {
+                player = 1;
+            } else if (player == 1) {
                 player = 2;
                 msg("player=2");
             } else if (player == 2) {
                 player = 1;
                 msg("player=1");
             }
+            log("Player " + player);
         }
     }
 
@@ -413,6 +500,11 @@ else if(s==4)
             bas = 1;
             bapos++;
             boutcount--;
+            playerchance--;
+            log("ba inserted");
+            log("bas=" + bas);
+            log("bapos=" + bapos);
+            log("boutcount AFTER INSERTING=" + boutcount);
         }
 
         if (b == bb && bbs == 0) {
@@ -420,13 +512,23 @@ else if(s==4)
             bbs = 1;
             bbpos++;
             boutcount--;
-        }
+            playerchance--;
+            log("bb inserted");
+            log("bbs=" + bbs);
+            log("bdbos=" + bbpos);
+            log("Boutcount AFTER INSERTING=" + boutcount);
 
+        }
         if (b == bc && bcs == 0) {
             b.move(x, y);
             bcs = 1;
             bcpos++;
             boutcount--;
+            playerchance--;
+            log("bc inserted");
+            log("bcs=" + bcs);
+            log("bcpos=" + bcpos);
+            log("Boutcount AFTER INSERTING=" + boutcount);
         }
 
         if (b == bd && bds == 0) {
@@ -434,116 +536,1634 @@ else if(s==4)
             bds = 1;
             bdpos++;
             boutcount--;
+            playerchance--;
+
+            log("bd inserted");
+            log("bds=" + bds);
+            log("bdpos=" + bdpos);
+            log("Boutcount AFTER INSERTING=" + boutcount);
         }
+        if (b == ra && ras == 0) {
+            b.move(x, y);
+            ras = 1;
+            rapos++;
+            routcount--;
+            playerchance--;
+            log("ra inserted");
+            log("ras=" + ras);
+            log("rapos=" + rapos);
+            log("routcount AFTER INSERTING=" + routcount);
+        }
+
+        if (b == rb && rbs == 0) {
+            b.move(x, y);
+            rbs = 1;
+            rbpos++;
+            routcount--;
+            playerchance--;
+            log("rb inserted");
+            log("rbs=" + rbs);
+            log("rbpos=" + rbpos);
+            log("Routcount AFTER INSERTING=" + routcount);
+
+        }
+        if (b == rc && rcs == 0) {
+            b.move(x, y);
+            rcs = 1;
+            rcpos++;
+            routcount--;
+            playerchance--;
+            log("rc inserted");
+            log("rcs=" + rcs);
+            log("rcpos=" + rcpos);
+            log("routcount AFTER INSERTING=" + routcount);
+        }
+
+        if (b == rd && rds == 0) {
+            b.move(x, y);
+            rds = 1;
+            rdpos++;
+            routcount--;
+            playerchance--;
+            log(" rd inserted");
+            log("rds=" + rds);
+            log("rdpos=" + rdpos);
+            log("routcount AFTER INSERTING =" + routcount);
+        }
+    }
+
+    public Boolean templeCheck(int pos) {
+        Boolean v = false;
+        if (pos == 1) {
+            v = false;
+        } else if (pos == 5) {
+            v = false;
+        } else if (pos == 9) {
+            v = false;
+        } else if (pos == 13) {
+            v = false;
+        } else if (pos == 25) {
+            v = false;
+        } else {
+            v = true;
+        }
+
+        return v;
     }
 
     public void coinMove(JButton b, int x, int y) {
         int i = 0;
+        playerchance--;
+        log("coin start to move");
+        int p = 0;
         while (i <= s - 1) {
             int X = b.getLocation().x;
             int Y = b.getLocation().y;
             i++;
             if (b == ba) {
-                b.move(X + icell[bac][0], Y + icell[bac][1]);
-                bac++;
-                bapos++;
+                if (25 - bapos >= s - p) {
+                    if (bx == 0 && bapos == 16) {
+                        bapos = 1;
+                        bac = 0;
+                        b.move(ftba[0], ftba[1]);
+                    } else {
+                        b.move(X + icell[bac][0], Y + icell[bac][1]);
+                        bac++;
+                        bapos++;
+                    }
+                    p++;
+                }
+                log("ba moved one time");
+                log("bac=" + bac);
+                log("bapos=" + bapos);
+
             }
             if (b == bb) {
-                b.move(X + icell[bbc][0], Y + icell[bbc][1]);
-                bbc++;
-                bbpos++;
+                if (25 - bbpos >= s - p) {
+                    if (bx == 0 && bbpos == 16) {
+                        bbpos = 1;
+                        bbc = 0;
+                        b.move(ftbb[0], ftbb[1]);
+                    } else {
+                        b.move(X + icell[bbc][0], Y + icell[bbc][1]);
+                        bbc++;
+                        bbpos++;
+                    }
+                    p++;
+                }
+                log("bb moved one time");
+                log("bbc=" + bbc);
+                log("bbpos=" + bbpos);
             }
             if (b == bc) {
-                b.move(X + icell[bcc][0], Y + icell[bcc][1]);
-                bcc++;
-                bcpos++;
+                if (25 - bcpos >= s - p) {
+
+                    if (bx == 0 && bcpos == 16) {
+                        bcpos = 1;
+                        bcc = 0;
+                        b.move(ftbc[0], ftbc[1]);
+                    } else {
+
+                        b.move(X + icell[bcc][0], Y + icell[bcc][1]);
+                        bcc++;
+                        bcpos++;
+                    }
+                    p++;
+                }
+                log("bc moved one time");
+                log("bcc=" + bcc);
+                log("bcpos=" + bcpos);
             }
             if (b == bd) {
-                b.move(X + icell[bdc][0], Y + icell[bdc][1]);
-                bdc++;
-                bdpos++;
+                if (25 - bdpos >= s - p) {
+                    if (bx == 0 && bdpos == 16) {
+                        bdpos = 1;
+                        bdc = 0;
+                        b.move(ftbd[0], ftbd[1]);
+
+                    } else {
+                        b.move(X + icell[bdc][0], Y + icell[bdc][1]);
+                        bdc++;
+                        bdpos++;
+                    }
+                    p++;
+                }
+                log("bd moved one time");
+                log("bdc=" + bdc);
+                log("bdpos=" + bdpos);
             }
+
+            if (b == ra) {
+                if (25 - rapos >= s - p) {
+                    if (rx == 0 && rapos == 16) {
+                        rapos = 1;
+                        rac = 0;
+                        b.move(ftra[0], ftra[1]);
+
+                    } else {
+                        // msg("else called");
+                        b.move(X + jcell[rac][0], Y + jcell[rac][1]);
+                        rac++;
+                        rapos++;
+                    }
+                    p++;
+                }
+                log("ra moved one time" + X + jcell[rac][0] + "," + Y + jcell[rac][1]);
+                log("rapos=" + rapos);
+                log("rac=" + rac);
+
+            }
+            if (b == rb) {
+                if (25 - rbpos >= s - p) {
+                    if (rx == 0 && rbpos == 16) {
+                        rbpos = 1;
+                        rbc = 0;
+                        b.move(ftrb[0], ftrb[1]);
+
+                    } else {
+                        b.move(X + jcell[rbc][0], Y + jcell[rbc][1]);
+                        rbc++;
+                        rbpos++;
+                    }
+                    p++;
+                }
+                log("rb moved one time");
+                log("rbpos=" + rbpos);
+                log("rbc=" + rbc);
+            }
+            if (b == rc) {
+                if (25 - rcpos >= s - p) {
+                    if (rx == 0 && rcpos == 16) {
+                        rcpos = 1;
+                        rcc = 0;
+                        b.move(ftrc[0], ftrc[1]);
+
+                    } else {
+                        b.move(X + jcell[rcc][0], Y + jcell[rcc][1]);
+                        rcc++;
+                        rcpos++;
+                    }
+                    p++;
+                }
+                log("rc moved one time");
+                log("rcpos=" + rcpos);
+                log("rcc=" + rcc);
+            }
+            if (b == rd) {
+                if (25 - rdpos >= s - p) {
+                    if (rx == 0 && rdpos == 16) {
+                        rdpos = 1;
+                        rdc = 0;
+                        b.move(ftrd[0], ftrd[1]);
+
+                    } else {
+                        b.move(X + jcell[rdc][0], Y + jcell[rdc][1]);
+                        rdc++;
+                        rdpos++;
+                    }
+                    p++;
+                }
+                log("rd moved one time");
+                log("rdpos=" + rdpos);
+                log("rdc=" + rdc);
+            }
+
+//            ╔═══╗░░░░╔╗░░░░╔══╗╔═══╗
+//            ║╔═╗║░░░░║║░░░░║╔╗║║╔═╗║
+//            ║╚═╝╠══╦═╝║╔╗╔╗║╚╝╚╣║░║║
+//            ║╔╗╔╣║═╣╔╗║╚╬╬╝║╔═╗║╚═╝║
+//            ║║║╚╣║═╣╚╝║╔╬╬╗║╚═╝║╔═╗║
+//            ╚╝╚═╩══╩══╝╚╝╚╝╚═══╩╝░╚╝
+            //msg("rapos=" + rapos + ";bapos=" + bapos + "i=" + i + "s=" + s);
+            if (i == s) {
+                if (bapos != 0) {
+                    log("bapos=" + bapos);
+                    if ((rapos > 16 && bapos > 16) && b == ra && (rapos - 4 == bapos || rapos + 4 == bapos) && (templeCheck(rapos)) && (templeCheck(bapos))) {
+                        log("rapos=" + rapos);
+                        ba.move(840, 270);
+                        bas = 0;
+                        bac = 0;
+                        bapos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ra x ba");
+                        log("bac=" + bac);
+                        log("bas=" + bas);
+                        log("bapos=" + bapos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rapos < 17 && bapos < 17) && (rapos - 8 == bapos || rapos + 8 == bapos) && b == ra && (templeCheck(rapos)) && (templeCheck(bapos))) {
+                        log("rapos=" + rapos);
+                        rx = 1;
+                        ba.move(840, 270);
+                        bas = 0;
+                        bac = 0;
+                        bapos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ra x ba");
+                        log("rx=" + rx);
+                        log("bac=" + bac);
+                        log("bas=" + bas);
+                        log("bapos=" + bapos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rbpos > 16 && bapos > 16) && b == rb && (rbpos - 4 == bapos || rbpos + 4 == bapos) && (templeCheck(rbpos)) && (templeCheck(bapos))) {
+                        log("rbpos=" + rbpos);
+                        ba.move(840, 270);
+                        bas = 0;
+                        bac = 0;
+                        bapos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rb x ba");
+                        log("bac=" + bac);
+                        log("bas=" + bas);
+                        log("bapos=" + bapos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rbpos < 17 && bapos < 17) && (rbpos - 8 == bapos || rbpos + 8 == bapos) && b == rb && (templeCheck(rbpos)) && (templeCheck(bapos))) {
+                        log("rbpos=" + rbpos);
+                        rx = 1;
+                        ba.move(840, 270);
+                        bas = 0;
+                        bac = 0;
+                        bapos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rb x ba");
+                        log("rx=" + rx);
+                        log("bac=" + bac);
+                        log("bas=" + bas);
+                        log("bapos=" + bapos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rcpos > 16 && bapos > 16) && b == rc && (rcpos - 4 == bapos || rcpos + 4 == bapos) && (templeCheck(rcpos)) && (templeCheck(bapos))) {
+                        log("rcpos=" + rcpos);
+                        ba.move(840, 270);
+                        bas = 0;
+                        bac = 0;
+                        bapos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log("rc x ba");
+                        log("bac=" + bac);
+                        log("bas=" + bas);
+                        log("bapos=" + bapos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rcpos < 17 && bapos < 17) && (rcpos - 8 == bapos || rcpos + 8 == bapos) && b == rc && (templeCheck(rcpos)) && (templeCheck(bapos))) {
+                        log("rcpos=" + rcpos);
+                        rx = 1;
+                        ba.move(840, 270);
+                        bas = 0;
+                        bac = 0;
+                        bapos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log("rc x ba");
+                        log("rx=" + rx);
+                        log("bac=" + bac);
+                        log("bas=" + bas);
+                        log("bapos=" + bapos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rdpos > 16 && bapos > 16) && b == rd && (rdpos - 4 == bapos || rdpos + 4 == bapos) && (templeCheck(rdpos)) && (templeCheck(bapos))) {
+                        log("rdpos=" + rdpos);
+                        ba.move(840, 270);
+                        bas = 0;
+                        bac = 0;
+                        bapos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+
+                        log(" rd x ba");
+                        log("bac=" + bac);
+                        log("bas=" + bas);
+                        log("bapos=" + bapos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rdpos < 17 && bapos < 17) && (rdpos - 8 == bapos || rdpos + 8 == bapos) && b == rd && (templeCheck(rdpos)) && (templeCheck(bapos))) {
+                        log("rdpos=" + rdpos);
+                        rx = 1;
+                        ba.move(840, 270);
+                        bas = 0;
+                        bac = 0;
+                        bapos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rd x ba");
+                        log("rx=" + rx);
+                        log("bac=" + bac);
+                        log("bas=" + bas);
+                        log("bapos=" + bapos);
+                        log("boutcount=" + boutcount);
+                    }
+                }
+
+//                ╔═══╗░░░░╔╗░░░░╔══╗╔══╗░
+//                ║╔═╗║░░░░║║░░░░║╔╗║║╔╗║░
+//                ║╚═╝╠══╦═╝║╔╗╔╗║╚╝╚╣╚╝╚╗
+//                ║╔╗╔╣║═╣╔╗║╚╬╬╝║╔═╗║╔═╗║
+//                ║║║╚╣║═╣╚╝║╔╬╬╗║╚═╝║╚═╝║
+//                ╚╝╚═╩══╩══╝╚╝╚╝╚═══╩═══╝
+                if (bbpos != 0) {
+                    log("bbpos=" + bbpos);
+                    if ((rapos > 16 && bbpos > 16) && b == ra && (rapos - 4 == bapos || rapos + 4 == bbpos) && (templeCheck(rapos)) && (templeCheck(bbpos))) {
+                        log("rapos=" + rapos);
+                        bb.move(840, 300);
+                        bbs = 0;
+                        bbc = 0;
+                        bbpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log("ra x bb");
+                        log("bbc=" + bbc);
+                        log("bbs=" + bbs);
+                        log("bbpos=" + bbpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rapos < 17 && bbpos < 17) && (rapos - 8 == bbpos || rapos + 8 == bbpos) && b == ra && (templeCheck(rapos)) && (templeCheck(bbpos))) {
+                        log("rapos=" + rapos);
+                        rx = 1;
+                        bb.move(840, 300);
+                        bbs = 0;
+                        bbc = 0;
+                        bbpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log("ra x bb");
+                        log("rx=" + rx);
+                        log("bbc=" + bbc);
+                        log("bbs=" + bbs);
+                        log("bbpos=" + bbpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rbpos > 16 && bbpos > 16) && b == rb && (rbpos - 4 == bbpos || rbpos + 4 == bbpos) && (templeCheck(rbpos)) && (templeCheck(bbpos))) {
+                        log("rbpos=" + rbpos);
+                        bb.move(840, 300);
+                        bbs = 0;
+                        bbc = 0;
+                        bbpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log("rb x bb");
+                        log("rx=" + rx);
+                        log("bbc=" + bbc);
+                        log("bbs=" + bbs);
+                        log("bbpos=" + bbpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rbpos < 17 && bbpos < 17) && (rbpos - 8 == bbpos || rbpos + 8 == bbpos) && b == rb && (templeCheck(rbpos)) && (templeCheck(bbpos))) {
+                        log("rbpos=" + rbpos);
+                        rx = 1;
+                        bb.move(840, 300);
+                        bbs = 0;
+                        bbc = 0;
+                        bbpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log("rb x bb");
+                        log("rx=" + rx);
+                        log("bbc=" + bbc);
+                        log("bbs=" + bbs);
+                        log("bbpos=" + bbpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rcpos > 16 && bbpos > 16) && b == rc && (rcpos - 4 == bbpos || rcpos + 4 == bbpos) && (templeCheck(rcpos)) && (templeCheck(bbpos))) {
+                        log("rcpos=" + rcpos);
+                        bb.move(840, 300);
+                        bbs = 0;
+                        bbc = 0;
+                        bbpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rc x bb");
+                        log("bbc=" + bbc);
+                        log("bbs=" + bbs);
+                        log("bbpos=" + bbpos);
+                        log("boutcount=" + boutcount);
+
+                    }
+                    if ((rcpos < 17 && bbpos < 17) && (rcpos - 8 == bbpos || rcpos + 8 == bbpos) && b == rc && (templeCheck(rcpos)) && (templeCheck(bbpos))) {
+                        log("rcpos=" + rcpos);
+                        rx = 1;
+                        bb.move(840, 300);
+                        bbs = 0;
+                        bbc = 0;
+                        bbpos = 0;
+                        boutcount++;
+
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rc x bb");
+                        log("rx=" + rx);
+                        log("bbc=" + bbc);
+                        log("bbs=" + bbs);
+                        log("bbpos=" + bbpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rdpos > 16 && bbpos > 16) && b == rd && (rdpos - 4 == bbpos || rdpos + 4 == bbpos) && (templeCheck(rdpos)) && (templeCheck(bbpos))) {
+                        log("rdpos=" + rdpos);
+                        bb.move(840, 300);
+                        bbs = 0;
+                        bbc = 0;
+                        bbpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rd x bb");
+                        log("bbc=" + bbc);
+                        log("bbs=" + bbs);
+                        log("bbpos=" + bbpos);
+                        log("boutcount=" + boutcount);
+
+                    }
+                    if ((rdpos < 17 && bbpos < 17) && (rdpos - 8 == bbpos || rdpos + 8 == bbpos) && b == rd && (templeCheck(rdpos)) && (templeCheck(bbpos))) {
+                        log("rdpos=" + rdpos);
+                        rx = 1;
+                        bb.move(840, 300);
+                        bbs = 0;
+                        bbc = 0;
+                        bbpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rd x bb");
+                        log("rx=" + rx);
+                        log("bbc=" + bbc);
+                        log("bbs=" + bbs);
+                        log("bbpos=" + bbpos);
+                        log("boutcount=" + boutcount);
+                    }
+                }
+
+//                ╔═══╗░░░░╔╗░░░░╔══╗╔═══╗
+//                ║╔═╗║░░░░║║░░░░║╔╗║║╔═╗║
+//                ║╚═╝╠══╦═╝║╔╗╔╗║╚╝╚╣║░╚╝
+//                ║╔╗╔╣║═╣╔╗║╚╬╬╝║╔═╗║║░╔╗
+//                ║║║╚╣║═╣╚╝║╔╬╬╗║╚═╝║╚═╝║
+//                ╚╝╚═╩══╩══╝╚╝╚╝╚═══╩═══╝
+                if (bcpos != 0) {
+
+                    log(" bcpos=" + bcpos);
+                    if ((rapos > 16 && bcpos > 16) && b == ra && (rapos - 4 == bcpos || rapos + 4 == bcpos) && (templeCheck(rapos)) && (templeCheck(bcpos))) {
+                        log("rapos=" + rapos);
+                        bc.move(840, 330);
+                        bcs = 0;
+                        bcc = 0;
+                        bcpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ra x bc");
+                        log("Ra position=" + (rapos - 8));
+                        log("Ra Position=" + (rapos + 8));
+                        log("B=ra");
+                        log("Current RA=" + rapos);
+                        log("rx=" + rx);
+                        log("bcc=" + bcc);
+                        log("bcs=" + bcs);
+                        log("bcpos=" + bcpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rapos < 17 && bcpos < 17) && (rapos - 8 == bcpos || rapos + 8 == bcpos) && b == ra && (templeCheck(rapos)) && (templeCheck(bcpos))) {
+                        log("rapos=" + rapos);
+                        rx = 1;
+                        bc.move(840, 330);
+                        bcs = 0;
+                        bcc = 0;
+                        bcpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ra x bc");
+                        log("Ra position=" + (rapos - 8));
+                        log("Ra Position=" + (rapos + 8));
+                        log("B=ra");
+                        log("Current RA=" + rapos);
+                        log("rx=" + rx);
+                        log("bcc=" + bcc);
+                        log("bcs=" + bcs);
+                        log("bcpos=" + bcpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rbpos > 16 && bcpos > 16) && b == rb && (rbpos - 4 == bcpos || rbpos + 4 == bcpos) && (templeCheck(rbpos)) && (templeCheck(bcpos))) {
+                        log("rbpos=" + rbpos);
+                        bc.move(840, 330);
+                        bcs = 0;
+                        bcc = 0;
+                        bcpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rb x bc");
+                        log("rx=" + rx);
+                        log("bcc=" + bcc);
+                        log("bcs=" + bcs);
+                        log("bcpos=" + bcpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rbpos < 17 && bcpos < 17) && (rbpos - 8 == bcpos || rbpos + 8 == bcpos) && b == rb && (templeCheck(rbpos)) && (templeCheck(bcpos))) {
+                        log("rbpos=" + rbpos);
+                        rx = 1;
+                        bc.move(840, 330);
+                        bcs = 0;
+                        bcc = 0;
+                        bcpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rb x bc");
+                        log("rx=" + rx);
+                        log("bcc=" + bcc);
+                        log("bcs=" + bcs);
+                        log("bcpos=" + bcpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rcpos > 16 && bcpos > 16) && b == rc && (rcpos - 4 == bcpos || rcpos + 4 == bcpos) && (templeCheck(rcpos)) && (templeCheck(bcpos))) {
+                        log("rcpos=" + rcpos);
+                        bc.move(840, 330);
+                        bcs = 0;
+                        bcc = 0;
+                        bcpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rc x bc");
+                        log("bcc=" + bcc);
+                        log("bcs=" + bcs);
+                        log("bcpos=" + bcpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rcpos < 17 && bcpos < 17) && (rcpos - 8 == bcpos || rcpos + 8 == bcpos) && b == rc && (templeCheck(rcpos)) && (templeCheck(bcpos))) {
+                        log("rcpos=" + rcpos);
+                        rx = 1;
+                        bc.move(840, 330);
+                        bcs = 0;
+                        bcc = 0;
+                        bcpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rc x bc");
+                        log("rx=" + rx);
+                        log("bcc=" + bcc);
+                        log("bcs=" + bcs);
+                        log("bcpos=" + bcpos);
+                        log("boutcount=" + boutcount);
+                    }
+                    if ((rdpos > 16 && bcpos > 16) && b == rd && (rdpos - 4 == bcpos || rdpos + 4 == bcpos) && (templeCheck(rdpos)) && (templeCheck(bcpos))) {
+                        log("rdpos=" + rdpos);
+                        bc.move(840, 330);
+                        bcs = 0;
+                        bcc = 0;
+                        bcpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rd x bc");
+                        log("bcc=" + bcc);
+                        log("bcs=" + bcs);
+                        log("bcpos=" + bcpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                    if ((rdpos < 17 && bcpos < 17) && (rdpos - 8 == bcpos || rdpos + 8 == bcpos) && b == rd && (templeCheck(rdpos)) && (templeCheck(bcpos))) {
+                        log("rdpos=" + rdpos);
+                        rx = 1;
+                        bc.move(840, 330);
+                        bcs = 0;
+                        bcc = 0;
+                        bcpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rd x bc");
+                        log("rx=" + rx);
+                        log("bcc=" + bcc);
+                        log("bcs=" + bcs);
+                        log("bcpos=" + bcpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                }
+
+//                ╔═══╗░░░░╔╗░░░░╔══╗╔═══╗
+//                ║╔═╗║░░░░║║░░░░║╔╗║╚╗╔╗║
+//                ║╚═╝╠══╦═╝║╔╗╔╗║╚╝╚╗║║║║
+//                ║╔╗╔╣║═╣╔╗║╚╬╬╝║╔═╗║║║║║
+//                ║║║╚╣║═╣╚╝║╔╬╬╗║╚═╝╠╝╚╝║
+//                ╚╝╚═╩══╩══╝╚╝╚╝╚═══╩═══╝
+                if (bdpos != 0) {
+                    log(" bdpos=" + bcpos);
+                    if ((rapos > 16 && bdpos > 16) && b == ra && (rapos - 4 == bdpos || rapos + 4 == bdpos) && (templeCheck(rapos)) && (templeCheck(bdpos))) {
+                        log("rapos=" + rapos);
+                        bd.move(840, 360);
+                        bds = 0;
+                        bdc = 0;
+                        bdpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ra x bd");
+                        log("bdc=" + bdc);
+                        log("bds=" + bds);
+                        log("bdpos=" + bdpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                    if ((rapos < 17 && bdpos < 17) && (rapos - 8 == bdpos || rapos + 8 == bdpos) && b == ra && (templeCheck(rapos)) && (templeCheck(bdpos))) {
+                        log("rapos=" + rapos);
+                        rx = 1;
+                        bd.move(840, 360);
+                        bds = 0;
+                        bdc = 0;
+                        bdpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ra x bd");
+                        log("rx=" + rx);
+                        log("bdc=" + bdc);
+                        log("bds=" + bds);
+                        log("bdpos=" + bdpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                    if ((rbpos > 16 && bdpos > 16) && b == rb && (rbpos - 4 == bdpos || rbpos + 4 == bdpos) && (templeCheck(rbpos)) && (templeCheck(bdpos))) {
+                        log("rbpos=" + rbpos);
+                        bd.move(840, 360);
+                        bds = 0;
+                        bdc = 0;
+                        bdpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rb x bd");
+                        log("bdc=" + bdc);
+                        log("bds=" + bds);
+                        log("bdpos=" + bdpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                    if ((rbpos < 17 && bdpos < 17) && (rbpos - 8 == bdpos || rbpos + 8 == bdpos) && b == rb && (templeCheck(rbpos)) && (templeCheck(bdpos))) {
+                        log("rbpos=" + rbpos);
+                        rx = 1;
+                        bd.move(840, 360);
+                        bds = 0;
+                        bdc = 0;
+                        bdpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rb x bd");
+                        log("rx=" + rx);
+                        log("bdc=" + bdc);
+                        log("bds=" + bds);
+                        log("bdpos=" + bdpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                    if ((rcpos > 16 && bdpos > 16) && b == rc && (rcpos - 4 == bdpos || rcpos + 4 == bdpos) && (templeCheck(rcpos)) && (templeCheck(bdpos))) {
+                        log("rcpos=" + rcpos);
+                        bd.move(840, 360);
+                        bds = 0;
+                        bdc = 0;
+                        bdpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rc x bd");
+                        log("bdc=" + bdc);
+                        log("bds=" + bds);
+                        log("bdpos=" + bdpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+
+                    if ((rcpos < 17 && bdpos < 17) && (rcpos - 8 == bdpos || rcpos + 8 == bdpos) && b == rc && (templeCheck(rcpos)) && (templeCheck(bdpos))) {
+                        log("rcpos=" + rcpos);
+                        rx = 1;
+                        bd.move(840, 360);
+                        bds = 0;
+                        bdc = 0;
+                        bdpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rc x bd");
+                        log("rx=" + rx);
+                        log("bdc=" + bdc);
+                        log("bds=" + bds);
+                        log("bdpos=" + bdpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                    if ((rdpos > 16 && bdpos > 16) && b == rd && (rdpos - 4 == bdpos || rdpos + 4 == bdpos) && (templeCheck(rdpos)) && (templeCheck(bdpos))) {
+                        log("rdpos=" + rdpos);
+                        bd.move(840, 360);
+                        bds = 0;
+                        bdc = 0;
+                        bdpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rd x bd");
+                        log("bdc=" + bdc);
+                        log("bds=" + bds);
+                        log("bdpos=" + bdpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                    if ((rdpos < 17 && bdpos < 17) && (rdpos - 8 == bdpos || rdpos + 8 == bdpos) && b == rd && (templeCheck(rdpos)) && (templeCheck(bdpos))) {
+                        log("rdpos=" + rdpos);
+                        rx = 1;
+                        bd.move(840, 360);
+                        bds = 0;
+                        bdc = 0;
+                        bdpos = 0;
+                        boutcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" rd x bd");
+                        log("rx=" + rx);
+                        log("bdc=" + bdc);
+                        log("bds=" + bds);
+                        log("bdpos=" + bdpos);
+                        log("boutcount=" + boutcount);
+                        log("");
+                    }
+                }
+//                
+//                
+//                BLUE x RED
+//                        
+//                   
+                if (rapos != 0) {
+                    log(" rapos=" + rapos);
+                    if ((rapos > 16 && bapos > 16) && b == ba && (bapos - 4 == rapos || bapos + 4 == rapos) && (templeCheck(bapos)) && (templeCheck(rapos))) {
+                        log("bapos=" + bapos);
+                        ra.move(870, 270);
+                        ras = 0;
+                        rac = 0;
+                        rapos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ba x ra");
+                        log("bx=" + bx);
+                        log("rac=" + rac);
+                        log("ras=" + ras);
+                        log("rapos=" + rapos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+
+                    if ((bapos < 17 && rapos < 17) && (bapos - 8 == rapos || bapos + 8 == rapos) && b == ba && (templeCheck(bapos)) && (templeCheck(rapos))) {
+                        log("bapos=" + bapos);
+                        bx = 1;
+                        ra.move(870, 270);
+                        ras = 0;
+                        rac = 0;
+                        rapos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ba x ra");
+                        log("bx=" + bx);
+                        log("rac=" + rac);
+                        log("ras=" + ras);
+                        log("rapos=" + rapos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rapos > 16 && bbpos > 16) && b == bb && (bbpos - 4 == rapos || bbpos + 4 == rapos) && (templeCheck(bbpos)) && (templeCheck(rapos))) {
+                        log("bbpos=" + bbpos);
+                        ra.move(870, 270);
+                        ras = 0;
+                        rac = 0;
+                        rapos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bb x ra");
+                        log("rac=" + rac);
+                        log("ras=" + ras);
+                        log("rapos=" + rapos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bbpos < 17 && rapos < 17) && (bbpos - 8 == rapos || bbpos + 8 == rapos) && b == bb && (templeCheck(bbpos)) && (templeCheck(rapos))) {
+                        log("bbpos=" + bbpos);
+                        bx = 1;
+                        ra.move(870, 270);
+                        ras = 0;
+                        rac = 0;
+                        rapos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bb x ra");
+                        log("bx=" + bx);
+                        log("rac=" + rac);
+                        log("ras=" + ras);
+                        log("rapos=" + rapos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rapos > 16 && bcpos > 16) && b == bc && (bcpos - 4 == rapos || bcpos + 4 == rapos) && (templeCheck(bcpos)) && (templeCheck(rapos))) {
+                        log("bcpos=" + bcpos);
+                        ras = 0;
+                        rac = 0;
+                        rapos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        ra.move(870, 270);
+                        log(" bc x ra");
+                        log("rac=" + rac);
+                        log("ras=" + ras);
+                        log("rapos=" + rapos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+
+                    if ((bcpos < 17 && rapos < 17) && (bcpos - 8 == rapos || bcpos + 8 == rapos) && b == bc && (templeCheck(bcpos)) && (templeCheck(rapos))) {
+                        log("bcpos=" + bcpos);
+                        bx = 1;
+                        ra.move(870, 270);
+                        ras = 0;
+                        rac = 0;
+                        rapos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bc x ra");
+                        log("bx=" + bx);
+                        log("rac=" + rac);
+                        log("ras=" + ras);
+                        log("rapos=" + rapos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rapos > 16 && bdpos > 16) && b == bd && (bdpos - 4 == rapos || bdpos + 4 == rapos) && (templeCheck(bdpos)) && (templeCheck(rapos))) {
+                        log("bdpos=" + bdpos);
+                        ra.move(870, 270);
+                        ras = 0;
+                        rac = 0;
+                        rapos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bd x ra");
+                        log("rac=" + rac);
+                        log("ras=" + ras);
+                        log("rapos=" + rapos);
+                        log("routcount=" + routcount);
+                        log("");
+
+                    }
+                    if ((bdpos < 17 && rapos < 17) && (bdpos - 8 == rapos || bdpos + 8 == rapos) && b == bd && (templeCheck(bdpos)) && (templeCheck(rapos))) {
+                        log("bdpos=" + bdpos);
+                        bx = 1;
+                        ra.move(870, 270);
+                        ras = 0;
+                        rac = 0;
+                        rapos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bd x ra");
+                        log("bx=" + bx);
+                        log("rac=" + rac);
+                        log("ras=" + ras);
+                        log("rapos=" + rapos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                }
+
+//                ╔═══╗░░░░╔╗░░░░╔══╗╔══╗░
+//                ║╔═╗║░░░░║║░░░░║╔╗║║╔╗║░
+//                ║╚═╝╠══╦═╝║╔╗╔╗║╚╝╚╣╚╝╚╗
+//                ║╔╗╔╣║═╣╔╗║╚╬╬╝║╔═╗║╔═╗║
+//                ║║║╚╣║═╣╚╝║╔╬╬╗║╚═╝║╚═╝║
+//                ╚╝╚═╩══╩══╝╚╝╚╝╚═══╩═══╝
+                if (rbpos != 0) {
+                    log(" rbpos=" + rbpos);
+                    if ((rbpos > 16 && bapos > 16) && b == ba && (bapos - 4 == rbpos || bapos + 4 == rbpos) && (templeCheck(bapos)) && (templeCheck(rbpos))) {
+                        log("bapos=" + bapos);
+                        rb.move(870, 300);
+                        rbs = 0;
+                        rbc = 0;
+                        rbpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ba x rb");
+                        log("bx=" + bx);
+                        log("rbc=" + rbc);
+                        log("rbs=" + rbs);
+                        log("rbpos=" + rbpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bapos < 17 && rbpos < 17) && (bapos - 8 == rbpos || bapos + 8 == rbpos) && b == ba && (templeCheck(bapos)) && (templeCheck(rbpos))) {
+                        log("bbpos=" + bbpos);
+                        bx = 1;
+                        rb.move(870, 300);
+                        rbs = 0;
+                        rbc = 0;
+                        rbpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ba x rb");
+                        log("bx=" + bx);
+                        log("rbc=" + rbc);
+                        log("rbs=" + rbs);
+                        log("rbpos=" + rbpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rbpos > 16 && bbpos > 16) && b == bb && (bbpos - 4 == rbpos || bbpos + 4 == rbpos) && (templeCheck(bbpos)) && (templeCheck(rbpos))) {
+                        log("bbpos=" + bbpos);
+                        rb.move(870, 300);
+                        rbs = 0;
+                        rbc = 0;
+                        rbpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bb x rb");
+                        log("bx=" + bx);
+                        log("rbc=" + rbc);
+                        log("rbs=" + rbs);
+                        log("rbpos=" + rbpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bbpos < 17 && rbpos < 17) && (bbpos - 8 == rbpos || bbpos + 8 == rbpos) && b == bb && (templeCheck(bbpos)) && (templeCheck(rbpos))) {
+                        log("bbpos=" + bbpos);
+                        bx = 1;
+                        rb.move(870, 300);
+                        rbs = 0;
+                        rbc = 0;
+                        rbpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bb x rb");
+                        log("bx=" + bx);
+                        log("rbc=" + rbc);
+                        log("rbs=" + rbs);
+                        log("rbpos=" + rbpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rbpos > 16 && bcpos > 16) && b == bc && (bcpos - 4 == rbpos || bcpos + 4 == rbpos) && (templeCheck(bcpos)) && (templeCheck(rbpos))) {
+                        log("bcpos=" + bcpos);
+                        log("inner temple");
+                        rb.move(870, 300);
+                        rbs = 0;
+                        rbc = 0;
+                        rbpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bc x rb");
+                        log("bx=" + bx);
+                        log("rbc=" + rbc);
+                        log("rbs=" + rbs);
+                        log("rbpos=" + rbpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bcpos < 17 && rbpos < 17) && (bcpos - 8 == rbpos || bcpos + 8 == rbpos) && b == bc && (templeCheck(bcpos)) && (templeCheck(rbpos))) {
+                        log("bcpos=" + bcpos);
+                        bx = 1;
+                        rb.move(870, 300);
+                        rbs = 0;
+                        rbc = 0;
+                        rbpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bc x rb");
+                        log("bx=" + bx);
+                        log("rbc=" + rbc);
+                        log("rbs=" + rbs);
+                        log("rbpos=" + rbpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rbpos > 16 && bdpos > 16) && b == bd && (bdpos - 4 == rbpos || bdpos + 4 == rbpos) && (templeCheck(bdpos)) && (templeCheck(rbpos))) {
+                        log("bdpos=" + bdpos);
+                        rb.move(870, 300);
+                        rbs = 0;
+                        rbc = 0;
+                        rbpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bd x rb");
+                        log("bx=" + bx);
+                        log("rbc=" + rbc);
+                        log("rbs=" + rbs);
+                        log("rbpos=" + rbpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bdpos < 17 && rbpos < 17) && (bdpos - 8 == rbpos || bdpos + 8 == rbpos) && b == bd && (templeCheck(bdpos)) && (templeCheck(rbpos))) {
+                        log("bdpos=" + bdpos);
+                        bx = 1;
+                        rb.move(870, 300);
+                        rbs = 0;
+                        rbc = 0;
+                        rbpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bd x rb");
+                        log("bx=" + bx);
+                        log("rbc=" + rbc);
+                        log("rbs=" + rbs);
+                        log("rbpos=" + rbpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                }
+
+//                ╔═══╗░░░░╔╗░░░░╔══╗╔═══╗
+//                ║╔═╗║░░░░║║░░░░║╔╗║║╔═╗║
+//                ║╚═╝╠══╦═╝║╔╗╔╗║╚╝╚╣║░╚╝
+//                ║╔╗╔╣║═╣╔╗║╚╬╬╝║╔═╗║║░╔╗
+//                ║║║╚╣║═╣╚╝║╔╬╬╗║╚═╝║╚═╝║
+//                ╚╝╚═╩══╩══╝╚╝╚╝╚═══╩═══╝
+                if (rcpos != 0) {
+                    log(" rcpos=" + rcpos);
+                    if ((rcpos > 16 && bapos > 16) && b == ba && (bapos - 4 == rcpos || bapos + 4 == rcpos) && (templeCheck(bapos)) && (templeCheck(rcpos))) {
+                        log("bapos=" + bapos);
+                        rc.move(870, 330);
+                        rcs = 0;
+                        rcc = 0;
+                        rcpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ba x rc");
+                        log("bx=" + bx);
+                        log("rcc=" + rcc);
+                        log("rcs=" + rcs);
+                        log("rcpos=" + rcpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bapos < 17 && rcpos < 17) && (bapos - 8 == rcpos || bapos + 8 == rcpos) && b == ba && (templeCheck(bapos)) && (templeCheck(rcpos))) {
+                        log("bapos=" + bapos);
+                        bx = 1;
+                        rc.move(870, 330);
+                        rcs = 0;
+                        rcc = 0;
+                        rcpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ba x rc");
+                        log("bx=" + bx);
+                        log("rcc=" + rcc);
+                        log("rcs=" + rcs);
+                        log("rcpos=" + rcpos);
+                        log("ba position=" + bapos);
+                        log("routcount=" + routcount);
+                        log("");
+
+                    }
+                    if ((rcpos > 16 && bbpos > 16) && b == bb && (bbpos - 4 == rcpos || bbpos + 4 == rcpos) && (templeCheck(bbpos)) && (templeCheck(rcpos))) {
+                        log("bbpos=" + bbpos);
+                        rc.move(870, 330);
+                        rcs = 0;
+                        rcc = 0;
+                        rcpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bb x rc");
+                        log("bx=" + bx);
+                        log("rcc=" + rcc);
+                        log("rcs=" + rcs);
+                        log("rcpos=" + rcpos);
+                        log("routcount=" + routcount);
+                        log("");
+
+                    }
+                    if ((bbpos < 17 && rcpos < 17) && (bbpos - 8 == rcpos || bbpos + 8 == rcpos) && b == bb && (templeCheck(bbpos)) && (templeCheck(rcpos))) {
+                        log("bbpos=" + bbpos);
+                        bx = 1;
+                        rc.move(870, 330);
+                        rcs = 0;
+                        rcc = 0;
+                        rcpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bb x rc");
+                        log("bx=" + bx);
+                        log("rcc=" + rcc);
+                        log("rcs=" + rcs);
+                        log("rcpos=" + rcpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rcpos > 16 && bcpos > 16) && b == bc && (bcpos - 4 == rcpos || bcpos + 4 == rcpos) && (templeCheck(bcpos)) && (templeCheck(rcpos))) {
+                        log("bcpos=" + bcpos);
+                        rc.move(870, 330);
+                        rcs = 0;
+                        rcc = 0;
+                        rcpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bc x rc");
+                        log("rcc=" + rcc);
+                        log("rcs=" + rcs);
+                        log("rcpos=" + rcpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bcpos < 17 && rcpos < 17) && (bcpos - 8 == rcpos || bcpos + 8 == rcpos) && b == bc && (templeCheck(bcpos)) && (templeCheck(rcpos))) {
+                        log("bcpos=" + bcpos);
+                        bx = 1;
+                        rc.move(870, 330);
+                        rcs = 0;
+                        rcc = 0;
+                        rcpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bc x rc");
+                        log("bx=" + bx);
+                        log("rcc=" + rcc);
+                        log("rcs=" + rcs);
+                        log("rcpos=" + rcpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rcpos > 16 && bdpos > 16) && b == bd && (bdpos - 4 == rcpos || bdpos + 4 == rcpos) && (templeCheck(bdpos)) && (templeCheck(rcpos))) {
+                        log(" bdpos=" + bdpos);
+                        rc.move(870, 330);
+                        rcs = 0;
+                        rcc = 0;
+                        rcpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bd x rc");
+                        log("rcc=" + rcc);
+                        log("rcs=" + rcs);
+                        log("rcpos=" + rcpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bdpos < 17 && rcpos < 17) && (bdpos - 8 == rcpos || bdpos + 8 == rcpos) && b == bd && (templeCheck(bdpos)) && (templeCheck(rcpos))) {
+                        log("rdpos=" + rdpos);
+                        bx = 1;
+                        rc.move(870, 330);
+                        rcs = 0;
+                        rcc = 0;
+                        rcpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bd x rc");
+                        log("bx=" + bx);
+                        log("rcc=" + rcc);
+                        log("rcs=" + rcs);
+                        log("rcpos=" + rcpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                }
+
+//                ╔═══╗░░░░╔╗░░░░╔══╗╔═══╗
+//                ║╔═╗║░░░░║║░░░░║╔╗║╚╗╔╗║
+//                ║╚═╝╠══╦═╝║╔╗╔╗║╚╝╚╗║║║║
+//                ║╔╗╔╣║═╣╔╗║╚╬╬╝║╔═╗║║║║║
+//                ║║║╚╣║═╣╚╝║╔╬╬╗║╚═╝╠╝╚╝║
+//                ╚╝╚═╩══╩══╝╚╝╚╝╚═══╩═══╝
+                if (rdpos != 0) {
+                    log(" rdpos=" + rdpos);
+                    if ((rdpos > 16 && bapos > 16) && b == bd && (bapos - 4 == rdpos || bapos + 4 == rdpos) && (templeCheck(bapos)) && (templeCheck(rdpos))) {
+                        log(" bapos=" + bapos);
+                        rd.move(870, 360);
+                        rds = 0;
+                        rdc = 0;
+                        rdpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ba x rd");
+                        log("rdc=" + rdc);
+                        log("rds=" + rds);
+                        log("rdpos=" + rdpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bapos < 17 && rdpos < 17) && (bapos - 8 == rdpos || bapos + 8 == rdpos) && b == ba && (templeCheck(bapos)) && (templeCheck(rdpos))) {
+                        log(" bapos=" + bapos);
+                        log("rdpos=" + rdpos);
+                        bx = 1;
+                        rd.move(870, 360);
+                        rds = 0;
+                        rdc = 0;
+                        rdpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" ba x rd");
+                        log("bx=" + bx);
+                        log("rdc=" + rdc);
+                        log("rds=" + rds);
+                        log("rdpos=" + rdpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rdpos > 16 && bbpos > 16) && b == bb && (bbpos - 4 == rdpos || bbpos + 4 == rdpos) && (templeCheck(bbpos)) && (templeCheck(rdpos))) {
+                        log(" bbpos=" + bbpos);
+                        rd.move(870, 360);
+                        rds = 0;
+                        rdc = 0;
+                        rdpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bbx rd");
+                        log("rdc=" + rdc);
+                        log("rds=" + rds);
+                        log("rdpos=" + rdpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bbpos < 17 && rdpos < 17) && (bbpos - 8 == rdpos || bbpos + 8 == rdpos) && b == bb && (templeCheck(bbpos)) && (templeCheck(rdpos))) {
+                        log(" bbpos=" + bbpos);
+                        bx = 1;
+                        rd.move(870, 360);
+                        rds = 0;
+                        rdc = 0;
+                        rdpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bbx rd");
+                        log("bx=" + bx);
+                        log("rdc=" + rdc);
+                        log("rds=" + rds);
+                        log("rdpos=" + rdpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rdpos > 16 && bcpos > 16) && b == bc && (bcpos - 4 == rdpos || bcpos + 4 == rcpos) && (templeCheck(bcpos)) && (templeCheck(rdpos))) {
+                        log(" bcpos=" + bcpos);
+                        rd.move(870, 360);
+                        rds = 0;
+                        rdc = 0;
+                        rdpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bb x rd");
+                        log("rdc=" + rdc);
+                        log("rds=" + rds);
+                        log("rdpos=" + rdpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bcpos < 17 && rdpos < 17) && (bcpos - 8 == rdpos || bcpos + 8 == rdpos) && b == bc && (templeCheck(bcpos)) && (templeCheck(rdpos))) {
+                        log(" bcpos=" + bcpos);
+                        bx = 1;
+                        rd.move(870, 360);
+                        rds = 0;
+                        rdc = 0;
+                        rdpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bb x rd");
+                        log("bx=" + bx);
+                        log("rdc=" + rdc);
+                        log("rds=" + rds);
+                        log("rdpos=" + rdpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((rdpos > 16 && bdpos > 16) && b == bd && (bdpos - 4 == rdpos || bdpos + 4 == rcpos) && (templeCheck(bdpos)) && (templeCheck(rdpos))) {
+                        log(" bdpos=" + bdpos);
+                        rd.move(870, 360);
+                        rds = 0;
+                        rdc = 0;
+                        rdpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bc x rd");
+                        log("rdc=" + rdc);
+                        log("rds=" + rds);
+                        log("rdpos=" + rdpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                    if ((bdpos < 17 && rdpos < 17) && (bdpos - 8 == rdpos || bdpos + 8 == rdpos) && b == bd && (templeCheck(bdpos)) && (templeCheck(rdpos))) {
+                        log(" bdpos=" + bdpos);
+                        bx = 1;
+                        rd.move(870, 360);
+                        rds = 0;
+                        rdc = 0;
+                        rdpos = 0;
+                        routcount++;
+                        playerchance = 1;
+                        log("playerchance=" + playerchance);
+                        JOptionPane.showMessageDialog(null, "You got an extra chance");
+                        log(" bc x rd");
+                        log("bx=" + bx);
+                        log("rdc=" + rdc);
+                        log("rds=" + rds);
+                        log("rdpos=" + rdpos);
+                        log("routcount=" + routcount);
+                        log("");
+                    }
+                }
+
+            }
+        }
+    }
+
+    public void win() {
+        if (bapos == 25 && bbpos == 25 && bcpos == 25 && bdpos == 25) {
+            JOptionPane.showMessageDialog(null, "GAME COMPLETED,BLUE WON ");
+        } else if (rapos == 25 && rbpos == 25 && rcpos == 25 && rdpos == 25) {
+            JOptionPane.showMessageDialog(null, "GAME COMPLETED,RED WON ");
         }
     }
 
     private void raActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_raActionPerformed
 
         //rmove(ra, ftra[0], ftra[1]); // TODO add your handling code here:
+        if (player == 2) {
+            if (insert > 0) {
+                coinInsert(ra, ftra[0], ftra[1]);
+                insert--;
+                log("after inserting,insert=" + insert);
+            } else if (move == 1) {
+                coinMove(ra, ftra[0], ftra[1]);
+                move = 0;
+                log("after moving,move=" + move);
+            }
+        }
+        win();
+
     }//GEN-LAST:event_raActionPerformed
 
     private void baActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_baActionPerformed
         // TODO add your handling code here:
 
         //bmove(ba, ftba[0], ftba[1]);
-        if (insert == 1) {
-            coinInsert(ba, ftba[0], ftba[1]);
-            insert = 0;
+        if (player == 0 || player == 1) {
+            if (insert > 0) {
+                coinInsert(ba, ftba[0], ftba[1]);
+                insert--;
+                log("after inserting,insert=" + insert);
+            } else if (move == 1) {
+                coinMove(ba, ftba[0], ftba[1]);
+                move = 0;
+                log("after moving,move=" + move);
+            }
         }
-        if (move == 1) {
-            coinMove(ba, ftba[0], ftba[1]);
-            move = 0;
-        }
+        win();
+
 
     }//GEN-LAST:event_baActionPerformed
 
     private void bdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bdActionPerformed
         // TODO add your handling code here:
         //bmove(bd, ftbd[0], ftbd[1]);
-        if (insert == 1) {
-            coinInsert(bd, ftbd[0], ftbd[1]);
-            insert = 0;
-        }
-        if (move == 1) {
-            coinMove(bd, ftbd[0], ftbd[1]);
-            move = 0;
-        }
+        if (player == 0 || player == 1) {
 
+            if (insert > 0) {
+                coinInsert(bd, ftbd[0], ftbd[1]);
+                insert--;
+                log("after inserting,insert=" + insert);
+            } else if (move == 1) {
+                coinMove(bd, ftbd[0], ftbd[1]);
+                move = 0;
+                log("after moving,move=" + move);
+            }
+        }
+        win();
 
     }//GEN-LAST:event_bdActionPerformed
 
     private void rdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdActionPerformed
         //rmove(rd, ftrd[0], ftrd[1]);
+        if (player == 2) {
 
-        // TODO add your handling code here:
+            if (insert > 0) {
+                coinInsert(rd, ftrd[0], ftrd[1]);
+                insert--;
+                log("after inserting,insert=" + insert);
+            } else if (move == 1) {
+                coinMove(rd, ftrd[0], ftrd[1]);
+                move = 0;
+                log("after moving,move=" + move);
+            }
+        }
+        win();// TODO add your handling code here:
     }//GEN-LAST:event_rdActionPerformed
 
     private void bbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bbActionPerformed
         // TODO add your handling code here:
         //bmove(bb, ftbb[0], ftbb[1]);
 
-        if (insert == 1) {
-            coinInsert(bb, ftbb[0], ftbb[1]);
-            insert = 0;
-        }
-        if (move == 1) {
-            coinMove(bb, ftbb[0], ftbb[1]);
-            move = 0;
-        }
+        if (player == 0 || player == 1) {
+            if (insert > 0) {
+                coinInsert(bb, ftbb[0], ftbb[1]);
+                insert--;
+                log("after inserting,insert=" + insert);
+            } else if (move == 1) {
+                coinMove(bb, ftbb[0], ftbb[1]);
+                move = 0;
+                log("after moving,move=" + move);
+            }
 
-
+        }
+        win();
     }//GEN-LAST:event_bbActionPerformed
 
     private void bcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bcActionPerformed
         // TODO add your handling code here:
         //bmove(bc, ftbc[0], ftbc[1]);
 
-        if (insert == 1) {
-            coinInsert(bc, ftbc[0], ftbc[1]);
-            insert = 0;
+        if (player == 0 || player == 1) {
+            if (insert > 0) {
+                coinInsert(bc, ftbc[0], ftbc[1]);
+                insert--;
+                log("after inserting,insert=" + insert);
+            } else if (move == 1) {
+                coinMove(bc, ftbc[0], ftbc[1]);
+                move = 0;
+                log("after moving,move=" + move);
+            }
         }
-        if (move == 1) {
-            coinMove(bc, ftbc[0], ftbc[1]);
-            move = 0;
-        }
-
+        win();
     }//GEN-LAST:event_bcActionPerformed
 
     private void rbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbActionPerformed
         //rmove(rb, ftrb[0], ftrb[1]); // TODO add your handling code here:
+        if (player == 2) {
+            if (insert > 0) {
+                coinInsert(rb, ftrb[0], ftrb[1]);
+                insert--;
+               
+                log("after inserting,insert=" + insert);
+            } else if (move == 1) {
+                coinMove(rb, ftrb[0], ftrb[1]);
+                move = 0;
+                log("after moving,move=" + move);
+            }
+        }
+        win();
     }//GEN-LAST:event_rbActionPerformed
 
     private void rcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rcActionPerformed
         //rmove(rc, ftrc[0], ftrc[1]);  // TODO add your handling code here:
+        if (player == 2) {
+            if (insert > 0) {
+                coinInsert(rc, ftrc[0], ftrc[1]);
+                insert--;
+                log("after inserting,insert=" + insert);
+            } else if (move == 1) {
+                coinMove(rc, ftrc[0], ftrc[1]);
+                move = 0;
+                log("after moving,move=" + move);
+            }
+        }
+        win();
     }//GEN-LAST:event_rcActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
@@ -1077,8 +2697,6 @@ else if(s==4)
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1130,7 +2748,7 @@ else if(s==4)
         {-160, 0},
         {0, -120}
     };
-    public int bax = 380, bay = 500;
+  //  public int bax = 380, bay = 500;
 
     public int bas = 0;
     public int bbs = 0;
@@ -1142,7 +2760,7 @@ else if(s==4)
     public int bcc = 0;
     public int bdc = 0;
 
-    public int rax = 340, ray = 50;
+    //public int rax = 340, ray = 50;
 
     public int boutcount = 4;
     public int movechance = 0;
@@ -1174,6 +2792,10 @@ else if(s==4)
     public int rdpos = 0;
 
     public int player = 0;
+    public int rx = 0;
+    public int bx = 0;
+
+    public File file;
 
     public int[][] jcell = new int[][]{
         {-160, 0},
