@@ -1,2 +1,2 @@
 # GameKavadi
-## Project is half Completed. Help me with Logic
+## Project is Completed. Help me th Logic
